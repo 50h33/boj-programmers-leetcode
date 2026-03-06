@@ -1,25 +1,31 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int MAX = 100004;
-int n, a, b, x[MAX], visited[MAX];
-vector<int> adj[MAX];
-void go(int s) {
-    visited[s] = 1;
-    for (int it : adj[s]) {
-        if (visited[it]) continue;
-        x[it] = s;
-        go(it);
+int n, a, b, ans[100004];
+vector<int> adj[100004];
+bool visited[100004];
+
+void dfs(int x) {
+    visited[x] = 1;
+    for (int nx : adj[x]) {
+        if (visited[nx]) continue;
+        ans[nx] = x;
+        dfs(nx);
     }
 }
+
 int main() {
 	ios_base::sync_with_stdio(false);
-	cin.tie(NULL); cout.tie(NULL);
+	cin.tie(nullptr);
 	cin >> n;
-    for (int i = 1; i < n; i++) {
+    for (int i = 0; i < n-1; i++) {
         cin >> a >> b;
         adj[a].push_back(b);
         adj[b].push_back(a);
     }
-    go(1);
-    for (int i = 2; i <= n; i++) cout << x[i] << "\n";
+
+    dfs(1);
+
+    for (int i = 2; i <= n; i++) {
+        cout << ans[i] << "\n";
+    }
 }
