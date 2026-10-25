@@ -21,15 +21,15 @@ class Solution {
         
         long[] dist = new long[n+1];
         Arrays.fill(dist, INF);
-        
-        PriorityQueue<long[]> pq = new PriorityQueue<>((a, b) -> Long.compare(a[0], b[0]));
         dist[1] = 0;
+        PriorityQueue<long[]> pq = new PriorityQueue<>((a, b) -> Long.compare(a[0], b[0]));
         pq.offer(new long[]{0, 1});
         
-        while(!pq.isEmpty()) {
+        while (!pq.isEmpty()) {
             long[] cur = pq.poll();
             long d = cur[0];
             int u = (int) cur[1];
+            
             if (d != dist[u]) continue;
             
             for (int[] edge : graph[u]) {
@@ -43,6 +43,7 @@ class Solution {
                 }
             }
         }
+        
         for (int i = 1; i <= n; i++) {
             if (dist[i] <= k) answer++;
         }
