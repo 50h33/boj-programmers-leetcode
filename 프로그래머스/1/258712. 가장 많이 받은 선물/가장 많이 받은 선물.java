@@ -1,60 +1,55 @@
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 class Solution {
     public int solution(String[] friends, String[] gifts) {
-        // A친구, B친구, 준 횟수
-        Map<String, Map<String, Integer>> one = new HashMap<>();
-        // A친구, 모든 친구에게 준 횟수
-        Map<String, Integer> give = new HashMap<>();
-        // A친구, 모든 친구에게 받은 횟수
-        Map<String, Integer> given = new HashMap<>();
-        // A친구, 다음 달 받을 선물 개수
-        Map<String, Integer> nxt = new HashMap<>();
-        
-        for (String gift : gifts) {
-            String[] part = gift.split(" ");
-            String from = part[0];
-            String to = part[1];
-            if (!one.containsKey(from)) {
-                one.put(from, new HashMap<>());
-            }
-            one.get(from).merge(to, 1, Integer::sum);
-            give.merge(from, 1, Integer::sum);
-            given.merge(to, 1, Integer::sum);
+        int n = friends.length;
+
+        // 친구 이름을 배열 인덱스로 변환
+        Map<String, Integer> index = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            index.put(friends[i], i);
         }
-        
-        for (int i = 0; i < friends.length; i++) {
-            for (int j = i+1; j < friends.length; j++) {
-                int a = 0; int b = 0;
-                if (one.containsKey(friends[i])) {
-                    a = one.get(friends[i]).getOrDefault(friends[j], 0);
-                }
-                if (one.containsKey(friends[j])) {
-                    b = one.get(friends[j]).getOrDefault(friends[i], 0);
+
+        int[][] sent = new int[n][n];
+        int[] giftIndex = new int[n];
+
+        // 주고받은 횟수와 선물 지수 집계
+        for (String gift : gifts) {
+            String[] names = gift.split(" ");
+            int from = index.get(names[0]);
+            int to = index.get(names[1]);
+
+            sent[from][to]++;
+            giftIndex[from]++;
+            giftIndex[to]--;
+        }
+
+        int[] nextMonth = new int[n];
+
+        // 모든 친구 쌍을 한 번씩 비교
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                int diff = sent[i][j] - sent[j][i];
+
+                // 주고받은 횟수가 같으면 선물 지수로 비교
+                if (diff == 0) {
+                    diff = giftIndex[i] - giftIndex[j];
                 }
 
-                if (a > b) {
-                    nxt.merge(friends[i], 1, Integer::sum);
-                } else if (b > a) {
-                    nxt.merge(friends[j], 1, Integer::sum);
-                } else {
-                    int x = give.getOrDefault(friends[i], 0) - given.getOrDefault(friends[i], 0);
-                    int y = give.getOrDefault(friends[j], 0) - given.getOrDefault(friends[j], 0);
-                    if (x > y) {
-                        nxt.merge(friends[i], 1, Integer::sum);
-                    } else if (y > x) {
-                        nxt.merge(friends[j], 1, Integer::sum);
-                    }
+                if (diff > 0) {
+                    nextMonth[i]++;
+                } else if (diff < 0) {
+                    nextMonth[j]++;
                 }
             }
         }
-        
+
         int answer = 0;
-        for (Map.Entry<String, Integer> entry : nxt.entrySet()) {
-            int k = entry.getValue();
-            answer = Math.max(answer, k);
+        for (int count : nextMonth) {
+            answer = Math.max(answer, count);
         }
-        
+
         return answer;
     }
 }
